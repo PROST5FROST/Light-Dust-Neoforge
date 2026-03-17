@@ -1,14 +1,17 @@
 package com.lightdust.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeConfig;
+
 import java.util.Arrays;
 import java.util.List;
 
 public class LightDustConfig {
-    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec SPEC;
+    public static final NeoForgeConfig BUILDER = new NeoForgeConfig();
+    public static final NeoForgeConfig SPEC;
 
-    public static final ForgeConfigSpec.IntValue AMBIENT_RADIUS;
+    public static final NeoForgeConfig.IntValue AMBIENT_RADIUS;
     public static final ForgeConfigSpec.IntValue AMBIENT_HARD_CAP;
     public static final ForgeConfigSpec.IntValue AMBIENT_BLOCK_CAP;
     public static final ForgeConfigSpec.IntValue MIN_BLOCK_LIGHT;

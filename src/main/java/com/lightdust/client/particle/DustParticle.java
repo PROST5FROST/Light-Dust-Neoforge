@@ -8,17 +8,20 @@ import net.minecraft.client.particle.*;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import com.mojang.logging.LogUtils;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -295,8 +298,8 @@ public class DustParticle extends TextureSheetParticle {
             try {
                 String[] parts = entry.split("=");
                 if (parts.length == 2 && parts[1].contains("#")) {
-                    net.minecraft.resources.ResourceLocation rl = new net.minecraft.resources.ResourceLocation(parts[0].trim());
-                    net.minecraft.world.level.block.Block block = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getValue(rl);
+                    ResourceLocation rl = ResourceLocation.parse(parts[0].trim()); // В 1.21+ тільки .parse()
+                    Block block = BuiltInRegistries.BLOCK.get(rl);
                     
                     if (block != null && block != net.minecraft.world.level.block.Blocks.AIR) {
                         String hex = parts[1].substring(parts[1].indexOf("#") + 1).trim();
