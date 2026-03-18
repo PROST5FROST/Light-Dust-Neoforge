@@ -24,6 +24,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
 
+import static com.lightdust.event.AmbientDustHandler.isHoldingLight;
+
 @OnlyIn(Dist.CLIENT)
 public class DustParticle extends TextureSheetParticle {
     
@@ -146,11 +148,19 @@ public class DustParticle extends TextureSheetParticle {
             }
             
             int blockLight = level.getBrightness(LightLayer.BLOCK, currentPos);
-            if (blockLight < 4) {
-                this.remove();
-                return;
-            }
 
+            Player player = Minecraft.getInstance().player;
+            boolean holdsLight = player != null && isHoldingLight(player);
+
+            if (blockLight < 4) {
+                // If black its making chance to get out of this shit to light
+                if (holdsLight && player.distanceToSqr(this.x, this.y, this.z) < 25.0) {
+                    blockLight = 12; // Fake light
+                } else {
+                    this.remove();
+                    return;
+                }
+            }
             if (this.ownerPos != null) {
                 float intensity = Math.max(0f, (blockLight - 6) / 9.0f);
                 float baseBrightness = 0.15F + (0.85F * intensity);
@@ -184,7 +194,6 @@ public class DustParticle extends TextureSheetParticle {
                 }
             }
 
-            Player player = Minecraft.getInstance().player;
             if (player != null) {
                 double maxDist = LightDustConfig.AMBIENT_HARD_CAP.get();
                 if (player.distanceToSqr(this.x, this.y, this.z) > maxDist * maxDist) {

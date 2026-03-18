@@ -164,7 +164,7 @@ public class AmbientDustHandler {
         DustParticle.PENDING_POS = null;
     }
 
-    private static boolean isHoldingLight(Player player) {
+    public static boolean isHoldingLight(Player player) {
         // Check is the player holding light items or not.
         return isLightItem(player.getMainHandItem().getItem()) || isLightItem(player.getOffhandItem().getItem());
     }
