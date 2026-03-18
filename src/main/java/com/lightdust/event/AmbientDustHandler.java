@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
@@ -172,8 +173,10 @@ public class AmbientDustHandler {
     private static boolean isLightItem(net.minecraft.world.item.Item item) {
         // Item list that can emit lights, lol
         return item == net.minecraft.world.item.Items.TORCH
-                || item == net.minecraft.world.item.Items.SOUL_TORCH
-                || item == net.minecraft.world.item.Items.LANTERN
-                || item == net.minecraft.world.item.Items.GLOWSTONE;
+                || item == Items.SOUL_TORCH
+                || item == Items.LANTERN
+                || item == Items.GLOWSTONE
+                || item == Items.REDSTONE_TORCH
+                || item == Items.SOUL_LANTERN;
     }
 }
