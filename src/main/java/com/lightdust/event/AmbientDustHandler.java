@@ -23,7 +23,7 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 public class AmbientDustHandler {
 
     @SubscribeEvent
-    public static void onClientTick(ClientTickEvent event) {
+    public static void onClientTick(ClientTickEvent.Pre event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.isPaused() || mc.player == null || mc.level == null) return;
         if (!LightDustConfig.SPEC.isLoaded()) return;
@@ -61,6 +61,15 @@ public class AmbientDustHandler {
                     if (currentCount >= maxCap) continue;
 
                     int blockLight = level.getBrightness(LightLayer.BLOCK, mutablePos);
+
+                    if (blockLight < LightDustConfig.MIN_BLOCK_LIGHT.get()) {
+                        double distToPlayer = mutablePos.distToCenterSqr(player.position());
+
+                        if (distToPlayer < 16.0F && isHoldingLight(player)) {
+                            blockLight = 12;
+                        }
+                    }
+
                     if (blockLight < LightDustConfig.MIN_BLOCK_LIGHT.get()) continue;
 
                     if (isDay) {
@@ -153,5 +162,18 @@ public class AmbientDustHandler {
     private static void clearMaps() {
         DustParticle.AMBIENT_COUNTS.clear();
         DustParticle.PENDING_POS = null;
+    }
+
+    private static boolean isHoldingLight(Player player) {
+        // Check is the player holding light items or not.
+        return isLightItem(player.getMainHandItem().getItem()) || isLightItem(player.getOffhandItem().getItem());
+    }
+
+    private static boolean isLightItem(net.minecraft.world.item.Item item) {
+        // Item list that can emit lights, lol
+        return item == net.minecraft.world.item.Items.TORCH
+                || item == net.minecraft.world.item.Items.SOUL_TORCH
+                || item == net.minecraft.world.item.Items.LANTERN
+                || item == net.minecraft.world.item.Items.GLOWSTONE;
     }
 }
