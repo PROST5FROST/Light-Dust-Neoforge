@@ -11,20 +11,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
-@Mod.EventBusSubscriber(modid = LightDust.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = LightDust.MODID, value = Dist.CLIENT)
 public class AmbientDustHandler {
 
     @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+    public static void onClientTick(ClientTickEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.isPaused() || mc.player == null || mc.level == null) return;
         if (!LightDustConfig.SPEC.isLoaded()) return;
@@ -144,10 +143,10 @@ public class AmbientDustHandler {
     @SubscribeEvent public static void onDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) { 
         if (event.getEntity().level().isClientSide) clearMaps();
     }
-    @SubscribeEvent public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) { 
+    @SubscribeEvent public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity().level().isClientSide) clearMaps();
     }
-    @SubscribeEvent public static void onWorldUnload(LevelEvent.Unload event) { 
+    @SubscribeEvent public static void onWorldUnload(LevelEvent.Unload event) {
         if (event.getLevel().isClientSide()) clearMaps();
     }
 

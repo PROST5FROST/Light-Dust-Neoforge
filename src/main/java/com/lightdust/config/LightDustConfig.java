@@ -1,32 +1,30 @@
 package com.lightdust.config;
 
-
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.NeoForgeConfig;
-
+import net.neoforged.neoforge.common.ModConfigSpec;
 import java.util.Arrays;
 import java.util.List;
 
 public class LightDustConfig {
-    public static final NeoForgeConfig BUILDER = new NeoForgeConfig();
-    public static final NeoForgeConfig SPEC;
+    public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
-    public static final NeoForgeConfig.IntValue AMBIENT_RADIUS;
-    public static final ForgeConfigSpec.IntValue AMBIENT_HARD_CAP;
-    public static final ForgeConfigSpec.IntValue AMBIENT_BLOCK_CAP;
-    public static final ForgeConfigSpec.IntValue MIN_BLOCK_LIGHT;
-    public static final ForgeConfigSpec.IntValue DAYTIME_LIGHT_DIFF;
+    public static final ModConfigSpec SPEC;
 
-    public static final ForgeConfigSpec.DoubleValue AMBIENT_DUST_OPACITY;
-    public static final ForgeConfigSpec.DoubleValue PARTICLE_SIZE;
-    public static final ForgeConfigSpec.IntValue PARTICLE_LIFETIME;
+    public static final ModConfigSpec.IntValue AMBIENT_RADIUS;
+    public static final ModConfigSpec.IntValue AMBIENT_HARD_CAP;
+    public static final ModConfigSpec.IntValue AMBIENT_BLOCK_CAP;
+    public static final ModConfigSpec.IntValue MIN_BLOCK_LIGHT;
+    public static final ModConfigSpec.IntValue DAYTIME_LIGHT_DIFF;
 
-    public static final ForgeConfigSpec.DoubleValue TINT_STRENGTH;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CUSTOM_TINTS;
+    public static final ModConfigSpec.DoubleValue AMBIENT_DUST_OPACITY;
+    public static final ModConfigSpec.DoubleValue PARTICLE_SIZE;
+    public static final ModConfigSpec.IntValue PARTICLE_LIFETIME;
 
-    public static final ForgeConfigSpec.DoubleValue PLAYER_INTERACT_RADIUS;
-    public static final ForgeConfigSpec.IntValue BREAK_PARTICLE_COUNT;
-    public static final ForgeConfigSpec.DoubleValue BREAK_PARTICLE_SPEED;
+    public static final ModConfigSpec.DoubleValue TINT_STRENGTH;
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> CUSTOM_TINTS;
+
+    public static final ModConfigSpec.DoubleValue PLAYER_INTERACT_RADIUS;
+    public static final ModConfigSpec.IntValue BREAK_PARTICLE_COUNT;
+    public static final ModConfigSpec.DoubleValue BREAK_PARTICLE_SPEED;
 
     static {
 
