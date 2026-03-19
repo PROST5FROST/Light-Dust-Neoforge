@@ -32,4 +32,5 @@ public class LightDust {
             event.registerSpriteSet(ParticleInit.DUST_PARTICLE.get(), DustParticle.Provider::new);
         }
     }
+
 }

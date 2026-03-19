@@ -2,16 +2,21 @@ package com.lightdust.event;
 
 import com.lightdust.LightDust;
 import com.lightdust.client.particle.DustParticle;
+import com.lightdust.compat.DlCompat;
 import com.lightdust.config.LightDustConfig;
 import com.lightdust.init.ParticleInit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -38,6 +43,30 @@ public class AmbientDustHandler {
 
         BlockPos playerPos = player.blockPosition();
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+
+        // dust in eyes, lol
+        if (level.random.nextFloat() < 0.2f) {
+            Vec3 look = player.getLookAngle();
+            Vec3 motion = player.getDeltaMovement();
+
+            double px = player.getX() + look.x * 2.5 + (level.random.nextDouble() - 0.5) * 3.0;
+            double py = player.getEyeY() + look.y * 2.5 + (level.random.nextDouble() - 0.5) * 2.0;
+            double pz = player.getZ() + look.z * 2.5 + (level.random.nextDouble() - 0.5) * 3.0;
+
+
+            BlockPos checkPos = BlockPos.containing(px, py, pz);
+            int bLight = level.getBrightness(LightLayer.BLOCK, checkPos);
+
+
+            if (bLight >= 4 || (DlCompat.isDlPresent && isHoldingLight(player))) {
+                level.addParticle(ParticleInit.DUST_PARTICLE.get(),
+                        px, py, pz,
+                        motion.x * 0.4, motion.y * 0.4 + 0.005, motion.z * 0.4);
+            }
+        }
+
+
+
 
         long tick = level.getGameTime();
         int tickMod = (int)(tick % 40);
@@ -66,10 +95,12 @@ public class AmbientDustHandler {
                     if (blockLight < LightDustConfig.MIN_BLOCK_LIGHT.get()) {
                         double distToPlayer = mutablePos.distToCenterSqr(player.position());
 
-                        if (distToPlayer < 16.0F && isHoldingLight(player)) {
+                        if (distToPlayer < 16.0F && isHoldingLight(player) && DlCompat.isDlPresent) {
                             blockLight = 12;
                         }
                     }
+
+
 
                     if (blockLight < LightDustConfig.MIN_BLOCK_LIGHT.get()) continue;
 
@@ -117,9 +148,9 @@ public class AmbientDustHandler {
             double hardCap = LightDustConfig.AMBIENT_HARD_CAP.get();
             double pruneDistSqr = (hardCap + 1) * (hardCap + 1);
             
-            var iterator = DustParticle.AMBIENT_COUNTS.long2IntEntrySet().iterator();
+            var iterator = DustParticle.AMBIENT_COUNTS.entrySet().iterator();
             while (iterator.hasNext()) {
-                long key = iterator.next().getLongKey();
+                long key = iterator.next().getKey();
                 if (BlockPos.of(key).distSqr(playerPos) > pruneDistSqr) {
                     iterator.remove();
                 }
@@ -127,8 +158,8 @@ public class AmbientDustHandler {
         }
 
         // block go poof
-        if (player.swingTime == 1 && mc.hitResult != null && mc.hitResult.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK) {
-            BlockPos breakPos = ((net.minecraft.world.phys.BlockHitResult) mc.hitResult).getBlockPos();
+        if (player.swingTime == 1 && mc.hitResult != null && mc.hitResult.getType() == HitResult.Type.BLOCK) {
+            BlockPos breakPos = ((BlockHitResult) mc.hitResult).getBlockPos();
             if (level.getBlockState(breakPos).isAir()) {
                 int count = LightDustConfig.BREAK_PARTICLE_COUNT.get();
                 double speed = LightDustConfig.BREAK_PARTICLE_SPEED.get();
@@ -172,11 +203,15 @@ public class AmbientDustHandler {
 
     private static boolean isLightItem(net.minecraft.world.item.Item item) {
         // Item list that can emit lights, lol
-        return item == net.minecraft.world.item.Items.TORCH
+        return item == Items.TORCH
+                || item == Items.REDSTONE_TORCH
                 || item == Items.SOUL_TORCH
                 || item == Items.LANTERN
+                || item == Items.SOUL_LANTERN
                 || item == Items.GLOWSTONE
-                || item == Items.REDSTONE_TORCH
-                || item == Items.SOUL_LANTERN;
+                || item == Items.SEA_LANTERN
+                || item == Items.SEA_PICKLE
+                || item == Items.SOUL_CAMPFIRE
+                || item == Items.CAMPFIRE;
     }
 }
