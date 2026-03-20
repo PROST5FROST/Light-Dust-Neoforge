@@ -34,7 +34,7 @@ public class AmbientDustHandler {
     public static final java.util.List<MovingEntityData> ACTIVE_MOVING_ENTITIES = new java.util.ArrayList<>();
 
     @SubscribeEvent
-    public static void onClientTick(ClientTickEvent event) {
+    public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
 
         if (mc.isPaused() || mc.player == null || mc.level == null) return;

@@ -107,7 +107,9 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
 dependencies {
-    implementation('dev.isxander:yet-another-config-lib:3.6.1+1.21-neoforge')
+    implementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-neoforge") {
+        exclude group: 'thedarkcolour', module: 'kotlinforforge-neoforge'
+    }
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
