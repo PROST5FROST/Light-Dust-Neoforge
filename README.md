@@ -1,6 +1,7 @@
-# Light Dust
+# Light Dust Reforged
 
-Light Dust is a lightweight, client-side mod that adds floating dust to illuminated areas. Light Dust is built with interactive physics and high-performance optimization in mind.
+Light Dust Reforged is a lightweight, client-side mod that adds floating dust to illuminated areas. Light Dust is built with interactive physics and high-performance optimization in mind.
+(I'm planning to introduce exclusive features not found in the original, such as compat with more mods & compat with dynamic lightning mods.)
 
 ## Features
 
