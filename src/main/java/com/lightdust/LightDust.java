@@ -1,6 +1,7 @@
 package com.lightdust;
 
 import com.lightdust.client.particle.DustParticle;
+import com.lightdust.config.LightDustColorConfig;
 import com.lightdust.config.LightDustConfig;
 import com.lightdust.init.ParticleInit;
 import com.mojang.logging.LogUtils;
@@ -24,6 +25,7 @@ public class LightDust {
     public LightDust(IEventBus modBus, ModContainer modContainer) {
         ParticleInit.register(modBus);
         modContainer.registerConfig(ModConfig.Type.CLIENT, LightDustConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, LightDustColorConfig.SPEC);
     }
     @EventBusSubscriber(modid = MODID, value = Dist.CLIENT)
     public static class ClientModEvents {

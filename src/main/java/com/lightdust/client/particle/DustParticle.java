@@ -9,6 +9,8 @@ import net.minecraft.client.particle.*;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -605,8 +607,8 @@ public class DustParticle extends TextureSheetParticle {
             try {
                 String[] parts = entry.split("=");
                 if (parts.length == 2 && parts[1].contains("#")) {
-                    net.minecraft.resources.ResourceLocation rl = new net.minecraft.resources.ResourceLocation(parts[0].trim());
-                    net.minecraft.world.level.block.Block block = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getValue(rl);
+                    ResourceLocation rl = ResourceLocation.tryParse(parts[0].trim());
+                    net.minecraft.world.level.block.Block block = BuiltInRegistries.BLOCK.get(rl);
                     
                     if (block != null && block != net.minecraft.world.level.block.Blocks.AIR) {
                         String hex = parts[1].substring(parts[1].indexOf("#") + 1).trim();
@@ -648,8 +650,8 @@ public class DustParticle extends TextureSheetParticle {
             try {
                 String[] parts = entry.split("=");
                 if (parts.length == 2 && parts[1].contains("#")) {
-                    net.minecraft.resources.ResourceLocation rl = new net.minecraft.resources.ResourceLocation(parts[0].trim());
-                    net.minecraft.world.level.block.Block block = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getValue(rl);
+                    ResourceLocation rl = ResourceLocation.tryParse(parts[0].trim());
+                    net.minecraft.world.level.block.Block block = BuiltInRegistries.BLOCK.get(rl);
                     
                     if (block != null && block != net.minecraft.world.level.block.Blocks.AIR) {
                         String hex = parts[1].trim();
@@ -683,8 +685,8 @@ public class DustParticle extends TextureSheetParticle {
                             double reach = Double.parseDouble(data[1].trim());
                             double radius = Double.parseDouble(data[2].trim());
 
-                            net.minecraft.resources.ResourceLocation rl = new net.minecraft.resources.ResourceLocation(parts[0].trim());
-                            net.minecraft.world.level.block.Block block = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getValue(rl);
+                            ResourceLocation rl = ResourceLocation.tryParse(parts[0].trim());
+                            net.minecraft.world.level.block.Block block = BuiltInRegistries.BLOCK.get(rl);
                             if (block != null && block != net.minecraft.world.level.block.Blocks.AIR) {
                                 HEAT_SOURCE_BLOCKS.put(block, new double[]{speed, reach, radius});
                             }

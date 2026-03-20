@@ -20,6 +20,11 @@ public class ParticleInit {
                     "dust_particle", () -> new SimpleParticleType(false)
             );
 
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> ACTION_DUST_PARTICLE =
+            PARTICLES.register(
+                    "action_dust_particle", () -> new SimpleParticleType(false)
+            );
+
     public static void register(IEventBus eventBus) {
         PARTICLES.register(eventBus);
     }
