@@ -137,7 +137,7 @@ public class LightDustConfig {
         ENABLE_DUST_SETTLING = BUILDER.comment("If true, dust particles will visually settle and rest when hitting the ground.")
                 .define("enableDustSettling", true);
         ENABLE_ENTITY_DISTURBANCE = BUILDER.comment("If true, non-player entities (mobs/projectiles) will kick up and disturb dust. (Can be performance heavy in mob farms)")
-                .define("enableEntityDisturbance", false);
+                .define("enableEntityDisturbance", true);
         ENTITY_PUSH_STRENGTH = BUILDER.comment("How strongly non-player entities push dust when moving through it.")
                 .defineInRange("entityPushStrength", 0.05, 0.0, 2.0);
         BUILDER.pop();
