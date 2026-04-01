@@ -32,12 +32,47 @@ public class LightDustYACLConfig {
                                 .build())
                         .build()) // Closing General Category
                 // Experimental Category
+
+
                 .category(ConfigCategory.createBuilder()
                         .name(Component.literal("🧪 Experimental"))
 
                         .option(Option.<Boolean>createBuilder()
+                                .name(Component.literal("Dust Settling"))
+                                .description(OptionDescription.of(Component.literal("If true, dust particles will visually settle and rest when hitting the ground. [Performance Impact: NEGLIGIBLE]")))
+                                .binding(
+                                        true,
+                                        LightDustExperimentalConfig.ENABLE_DUST_SETTLING,
+                                        LightDustExperimentalConfig.ENABLE_DUST_SETTLING::set
+                                )
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Component.literal("Advanced Wind Math"))
+                                .description(OptionDescription.of(Component.literal("Makes the wind look realistic and natural [Performance Impact: MODERATE-HIGH]")))
+                                .binding(
+                                        true,
+                                        LightDustExperimentalConfig.ENABLE_ADVANCED_WIND_MATH,
+                                        LightDustExperimentalConfig.ENABLE_ADVANCED_WIND_MATH::set
+                                )
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Component.literal("Wind Deflection"))
+                                .description(OptionDescription.of(Component.literal("Allows wind to blow dust down tunnels and bounce off obstacles. [Performance Impact: LOW]")))
+                                .binding(
+                                        true,
+                                        LightDustExperimentalConfig.ENABLE_WIND_DEFLECTION,
+                                        LightDustExperimentalConfig.ENABLE_WIND_DEFLECTION::set
+                                )
+                                .controller(TickBoxControllerBuilder::create)
+                                .build())
+
+                        .option(Option.<Boolean>createBuilder()
                                 .name(Component.literal("Entity Disturbance"))
-                                .description(OptionDescription.of(Component.literal("Моби будуть розганяти пил, коли проходять крізь нього.")))
+                                .description(OptionDescription.of(Component.literal("If true, non-player entities (mobs/projectiles) will kick up and disturb dust. [Performance Impact: LOW-MEDIUM]")))
                                 .binding(
                                         true,
                                         LightDustExperimentalConfig.ENABLE_ENTITY_DISTURBANCE,
@@ -46,27 +81,7 @@ public class LightDustYACLConfig {
                                 .controller(TickBoxControllerBuilder::create)
                                 .build())
 
-                        .option(Option.<Boolean>createBuilder()
-                                .name(Component.literal("Dust Settling"))
-                                .description(OptionDescription.of(Component.literal("Пил буде осідати на блоки (тестова функція).")))
-                                .binding(
-                                        true,
-                                        LightDustExperimentalConfig.ENABLE_DUST_SETTLING,
-                                        LightDustExperimentalConfig.ENABLE_DUST_SETTLING::set
-                                )
-                                .controller(TickBoxControllerBuilder::create)
-                                .build())
 
-                        .option(Option.<Boolean>createBuilder()
-                                .name(Component.literal("Dust Settling"))
-                                .description(OptionDescription.of(Component.literal("Пил буде осідати на блоки (тестова функція).")))
-                                .binding(
-                                        true,
-                                        LightDustExperimentalConfig.ENABLE_DUST_SETTLING,
-                                        LightDustExperimentalConfig.ENABLE_DUST_SETTLING::set
-                                )
-                                .controller(TickBoxControllerBuilder::create)
-                                .build())
                         .build()) // Experimental category closing
 
                 // Final saving & building
