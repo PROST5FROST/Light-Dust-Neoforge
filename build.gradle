@@ -107,7 +107,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
 dependencies {
-    implementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-neoforge") {
+    implementation("dev.isxander:yet-another-config-lib:3.8.1+1.21.1-neoforge") {
         exclude group: 'thedarkcolour', module: 'kotlinforforge-neoforge'
     }
 }
