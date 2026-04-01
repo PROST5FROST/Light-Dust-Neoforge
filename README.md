@@ -1,6 +1,7 @@
-# Light Dust
+# Light Dust Neoforge
 
-Light Dust is a lightweight, client-side mod that adds floating dust to illuminated areas. Light Dust is built with interactive physics and high-performance optimization in mind.
+Light Dust Reforged is a lightweight, client-side mod that adds floating dust to illuminated areas. Light Dust is built with interactive physics and high-performance optimization in mind.
+
 
 ## Features
 
