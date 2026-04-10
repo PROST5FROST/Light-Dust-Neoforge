@@ -17,6 +17,7 @@ public class LightDustColorConfig {
         "minecraft:wall_torch=#FFDB8A",
         "minecraft:lantern=#FFDB8A",
         "minecraft:campfire=#FFDB8A",
+        "minecraft:lava=#FFDB8A",
         "minecraft:glowstone=#FFD273",
         "minecraft:shroomlight=#FF9933",
         "minecraft:jack_o_lantern=#FF9933",
@@ -134,8 +135,8 @@ public class LightDustColorConfig {
     static {
         BUILDER.push("Color and Tinting");
         
-        TINT_STRENGTH = BUILDER.comment("How strongly colored lights (like soul fire) tint the dust. 0.0 = no tint, 1.0 = full color")
-            .defineInRange("tintStrength", 0.45, 0.0, 1.0);
+        TINT_STRENGTH = BUILDER.comment("How strongly colored lights (like soul fire) tint the dust. 0.0 = no tint, 1.0 = full color (I suggest higher values 0.75+ for HD dust and lower for legacy dust)")
+            .defineInRange("tintStrength", 0.75, 0.0, 1.0);
             
         CUSTOM_TINTS = BUILDER.comment(
             "List of blocks and their hex colors for dust tinting.",

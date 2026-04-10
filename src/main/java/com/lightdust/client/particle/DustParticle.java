@@ -103,9 +103,12 @@ public class DustParticle extends TextureSheetParticle {
             float baseBrightness = 0.15F + (0.85F * intensity);
             float strength = LightDustColorConfig.TINT_STRENGTH.get().floatValue();
             
-            float baseR = this.cachedBiomeTint != null ? this.cachedBiomeTint[0] * baseBrightness : baseBrightness;
-            float baseG = this.cachedBiomeTint != null ? this.cachedBiomeTint[1] * baseBrightness : baseBrightness;
-            float baseB = this.cachedBiomeTint != null ? this.cachedBiomeTint[2] * baseBrightness : baseBrightness;
+            float baseR = (this.cachedBiomeTint != null && this.cachedBiomeTint.length >= 3) ? 
+                this.cachedBiomeTint[0] * baseBrightness : baseBrightness;
+            float baseG = (this.cachedBiomeTint != null && this.cachedBiomeTint.length >= 3) ? 
+                this.cachedBiomeTint[1] * baseBrightness : baseBrightness;
+            float baseB = (this.cachedBiomeTint != null && this.cachedBiomeTint.length >= 3) ? 
+                this.cachedBiomeTint[2] * baseBrightness : baseBrightness;
             
             if (blockTint != null && strength > 0) {
                 this.rCol = Mth.clamp((baseR * (1 - strength) + blockTint[0] * strength) + this.rVar, 0.0F, 1.0F);
@@ -687,7 +690,8 @@ public class DustParticle extends TextureSheetParticle {
         // Check if we already did the math for this block recently
         if (BIOME_CACHE.containsKey(posKey) && BEHAVIOR_CACHE.containsKey(posKey)) {
             if (particleInstance != null) particleInstance.behavior = BEHAVIOR_CACHE.get(posKey);
-            return BIOME_CACHE.get(posKey);
+            float[] cached = BIOME_CACHE.get(posKey);
+            return cached.length == 0 ? null : cached;
         }
 
         String dominantSource = level.getBiome(pos).unwrapKey().map(key -> key.location().toString()).orElse("minecraft:plains");
@@ -734,7 +738,6 @@ public class DustParticle extends TextureSheetParticle {
         }
         
         if (particleInstance != null) particleInstance.behavior = behavior;
-        
         // Save to cache so other particles spawning here don't have to calculate this
         BIOME_CACHE.put(posKey, actualBiomeTint != null ? actualBiomeTint : new float[0]);
         BEHAVIOR_CACHE.put(posKey, behavior);

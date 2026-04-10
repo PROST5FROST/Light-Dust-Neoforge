@@ -24,6 +24,7 @@ public class LightDustConfig {
     public static final ForgeConfigSpec.BooleanValue ENABLE_OCCLUSION_CULLING;
 
     //  VISUAL PROPERTIES 
+    public static final ForgeConfigSpec.BooleanValue USE_HD_PARTICLES;
     public static final ForgeConfigSpec.DoubleValue AMBIENT_DUST_OPACITY;
     public static final ForgeConfigSpec.DoubleValue PARTICLE_SIZE;
     public static final ForgeConfigSpec.IntValue PARTICLE_LIFETIME;
@@ -62,6 +63,8 @@ public class LightDustConfig {
     public static final ForgeConfigSpec.DoubleValue TREMOR_WAVEFRONT_THICKNESS;
     public static final ForgeConfigSpec.DoubleValue TREMOR_MAX_GRAVITY;
     public static final ForgeConfigSpec.DoubleValue TREMOR_MIN_GRAVITY;
+    public static final ForgeConfigSpec.DoubleValue TREMOR_ROOF_MULTIPLIER;
+    public static final ForgeConfigSpec.DoubleValue TREMOR_FLOOR_MULTIPLIER;
 
     //  THERMAL DYNAMICS 
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> HEAT_BLOCKS;
@@ -139,10 +142,12 @@ public class LightDustConfig {
         BUILDER.pop();
 
         BUILDER.push("Visuals");
-        AMBIENT_DUST_OPACITY = BUILDER.comment("Base opacity for ambient dust. (0.22 looks good in vanilla, 0.45+ is better for shaders)")
-                .defineInRange("ambientDustOpacity", 0.22, 0.0, 1.0);
+        USE_HD_PARTICLES = BUILDER.comment("If true, the mod will use the HD versions of the dust textures. No performance impact.")
+        .define("useHdParticles", true);
+        AMBIENT_DUST_OPACITY = BUILDER.comment("Base opacity for ambient dust. (0.22 looks good in vanilla, 0.45+ is better for shader) for HD dust lower these values slightly")
+                .defineInRange("ambientDustOpacity", 0.18, 0.0, 1.0);
         PARTICLE_SIZE = BUILDER.comment("Base size of the dust particles.")
-                .defineInRange("particleSize", 0.022, 0.001, 0.1);
+                .defineInRange("particleSize", 0.016, 0.001, 0.1);
         PARTICLE_LIFETIME = BUILDER.comment("Base lifetime of the dust particles in ticks. (20 ticks = 1 second)")
                 .defineInRange("particleLifetime", 200, 20, 1000);
         ENABLE_DYNAMIC_BLOCK_COLORS = BUILDER.comment(
@@ -202,7 +207,7 @@ public class LightDustConfig {
         CAVE_TREMOR_PARTICLE_COUNT = BUILDER.comment(
                 "Controls the volume of falling dust during explosions or Warden sonic booms.",
                 "Note: This is a multiplier against the expanding wave circumference, not a hard particle cap.")
-                .defineInRange("caveTremorParticleCount", 96, 0, 1024);
+                .defineInRange("caveTremorParticleCount", 64, 0, 1024);
         TREMOR_EPICENTER_MULTIPLIER = BUILDER.comment(
                 "Multiplies particle density at the epicenter (within 10% of the max radius).")
                 .defineInRange("tremorEpicenterMultiplier", 5.0, 1.0, 20.0);
@@ -212,7 +217,7 @@ public class LightDustConfig {
                 .defineInRange("tremorFalloffExponent", 6.0, 1.0, 10.0);
         TREMOR_CEILING_BIAS = BUILDER.comment(
                 "The probability that dust drops from the ceiling instead of kicking up from the floor.",
-                "0.85 means 85% of particles simulate rocks falling from above.")
+                "0.85 means 85% of particles simulate debris dust falling from above.")
                 .defineInRange("tremorCeilingBias", 0.75, 0.0, 1.0);
         TREMOR_FLOOR_KICK_FORCE = BUILDER.comment("Multiplier for the upward force applied to tremor dust that spawns on the ground.")
                 .defineInRange("tremorFloorKickForce", 2.1, 0.0, 5.0);
@@ -222,6 +227,14 @@ public class LightDustConfig {
                 .defineInRange("tremorMaxGravity", 0.04, 0.001, 0.5);
         TREMOR_MIN_GRAVITY = BUILDER.comment("EGravity applied to dust at the edge of the blast (makes distant dust float like mist).")
                 .defineInRange("tremorMinGravity", 0.001, 0.0, 0.1);
+        TREMOR_ROOF_MULTIPLIER = BUILDER.comment(
+                "Multiplier for tremor gravity when dust falls from the ceiling.",
+                "0.85 = 85% of the base gravity. (lower is lower gravity ex: falls slower")
+                .defineInRange("tremorRoofMultiplier", 0.4, 0.0, 2.0);
+        TREMOR_FLOOR_MULTIPLIER = BUILDER.comment(
+                "Multiplier for tremor gravity when dust is kicked up from the floor.",
+                "0.40 = 40% of the base gravity.")
+                .defineInRange("tremorFloorMultiplier", 0.2, 0.0, 2.0);
         BUILDER.pop();
 
         BUILDER.push("Thermal updrafts");

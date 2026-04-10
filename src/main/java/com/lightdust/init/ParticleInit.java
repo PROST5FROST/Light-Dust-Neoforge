@@ -20,4 +20,14 @@ public class ParticleInit {
 
     public static final RegistryObject<SimpleParticleType> EXPLOSION_DUST_PARTICLE
             = PARTICLES.register("explosion_dust_particle", () -> new SimpleParticleType(false));
+
+        // HD 
+    public static final RegistryObject<SimpleParticleType> DUST_PARTICLE_HD
+            = PARTICLES.register("dust_particle_hd", () -> new SimpleParticleType(false));
+
+    public static final RegistryObject<SimpleParticleType> ACTION_DUST_PARTICLE_HD
+            = PARTICLES.register("action_dust_particle_hd", () -> new SimpleParticleType(false));
+            
+    public static final RegistryObject<SimpleParticleType> EXPLOSION_DUST_PARTICLE_HD
+            = PARTICLES.register("explosion_dust_particle_hd", () -> new SimpleParticleType(false));
 }

@@ -149,8 +149,26 @@ public class ActionDustParticle extends TextureSheetParticle {
                 this.zd = -prevZd * bounceForce;
             }
             if (this.yd != prevYd) {
-                this.yd = -Math.abs(prevYd) * (bounceForce * 0.75) - 0.02;
+                this.yd = -prevYd * (bounceForce * 0.75);
             }
+        }
+
+        if (this.onGround) {
+            this.xd *= 0.5D;
+            this.zd *= 0.5D;
+
+            // If the particle is barely moving anymore turn off collisions
+            if (this.hasPhysics && Math.abs(this.xd) < 0.005 && Math.abs(this.zd) < 0.005 && Math.abs(this.yd) < 0.005) {
+                this.hasPhysics = false;
+                this.xd = 0.0;
+                this.yd = 0.0;
+                this.zd = 0.0;
+                this.rotSpeed = 0.0F; 
+            }
+        } else {
+            this.xd *= 0.92D;
+            this.yd *= 0.92D;
+            this.zd *= 0.92D;
         }
 
         if (this.onGround) {

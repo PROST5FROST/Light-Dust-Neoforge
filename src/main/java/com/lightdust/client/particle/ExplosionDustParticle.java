@@ -27,7 +27,7 @@ public class ExplosionDustParticle extends TextureSheetParticle {
         this.individualFriction = 0.83f + level.random.nextFloat() * 0.1f;
         this.lifetime = 50 + level.random.nextInt(70);
         this.gravity = CURRENT_GRAVITY;
-        this.hasPhysics = true;
+        this.hasPhysics = false;
 
         float r = 0.8F; float g = 0.8F; float b = 0.8F;
         if (CURRENT_BLOCK_COLOR != -1) {
@@ -85,21 +85,14 @@ public class ExplosionDustParticle extends TextureSheetParticle {
             this.alpha = this.baseAlpha * ((this.lifetime - this.age) / 20.0F);
         }
 
-        if (!this.onGround) {
-
-            this.yd -= this.individualGravity;
-        }
+        float chaoticGravity = this.gravity * (0.8F + (this.level.random.nextFloat() * 0.4F));
+        this.yd -= chaoticGravity;
 
         this.move(this.xd, this.yd, this.zd);
 
-        if (this.onGround) {
-            this.xd *= 0.4D;
-            this.zd *= 0.4D;
-        } else {
-            this.xd *= this.individualFriction; 
-            this.yd *= this.individualFriction;
-            this.zd *= this.individualFriction;
-        }
+        this.xd *= this.individualFriction; 
+        this.yd *= this.individualFriction;
+        this.zd *= this.individualFriction;
     }
 
     @OnlyIn(Dist.CLIENT)

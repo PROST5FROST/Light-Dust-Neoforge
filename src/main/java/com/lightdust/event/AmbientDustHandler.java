@@ -20,6 +20,9 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraftforge.registries.RegistryObject;
 
 @Mod.EventBusSubscriber(modid = LightDust.MODID, value = Dist.CLIENT)
 public class AmbientDustHandler {
@@ -42,6 +45,10 @@ public class AmbientDustHandler {
     public static final java.util.List<MovingEntityData> ACTIVE_MOVING_ENTITIES = new java.util.ArrayList<>();
     private static int spawnScanIndex = 0;
     private static final int BLOCKS_PER_TICK = 400;
+
+    private static ParticleOptions p(RegistryObject<SimpleParticleType> n, RegistryObject<SimpleParticleType> h) {
+        return LightDustConfig.USE_HD_PARTICLES.get() ? h.get() : n.get();
+    }
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
@@ -98,29 +105,41 @@ public class AmbientDustHandler {
             BlockPos groundPos = pos.below();
             
             if (level.getFluidState(pos).isEmpty()) {
+                
                 if (com.lightdust.config.LightDustConfig.ENABLE_DYNAMIC_BLOCK_COLORS.get()) {
                     com.lightdust.client.particle.ActionDustParticle.CURRENT_BLOCK_COLOR = level.getBlockState(groundPos).getMapColor(level, groundPos).col;
                 }
+
                 int maxParticles = LightDustConfig.HEAVY_LANDING_MAX_PARTICLES.get();
                 int multiplier = LightDustConfig.HEAVY_LANDING_PARTICLE_MULTIPLIER.get();
                 int count = Math.min(maxParticles, (int) (lastFallDistance * multiplier));
                 double maxRadius = Math.min(5.0, 1.5 + (lastFallDistance * 0.1));
                 double upBase = LightDustConfig.HEAVY_LANDING_UPWARD_SPEED.get();
                 double outBase = LightDustConfig.HEAVY_LANDING_OUTWARD_SPEED.get();
+
                 for (int i = 0; i < count; i++) {
                     double pRadius = level.random.nextDouble() * maxRadius;
-                    double angle = level.random.nextDouble() * Math.PI * 2;
-                    double dX = Math.cos(angle) * pRadius;
-                    double dZ = Math.sin(angle) * pRadius;
+
+                    float angle = level.random.nextFloat() * net.minecraft.util.Mth.TWO_PI;
+
+                    float cosAngle = net.minecraft.util.Mth.cos(angle);
+                    float sinAngle = net.minecraft.util.Mth.sin(angle);
+                    
+                    double dX = cosAngle * pRadius;
+                    double dZ = sinAngle * pRadius;
+                    
                     double px = player.getX() + dX;
                     double py = player.getY() + 0.1;
                     double pz = player.getZ() + dZ;
+                    
                     double forceMult = Math.max(0.2, (maxRadius - pRadius) / maxRadius);
                     double scale = Math.min(2.5, 1.0 + (lastFallDistance * 0.02));
-                    double vx = (dX / (pRadius == 0 ? 1 : pRadius)) * outBase * forceMult * scale * (0.8 + level.random.nextDouble() * 0.4);
+
+                    double vx = cosAngle * outBase * forceMult * scale * (0.8 + level.random.nextDouble() * 0.4);
                     double vy = upBase * forceMult * scale * (0.8 + level.random.nextDouble() * 0.4);
-                    double vz = (dZ / (pRadius == 0 ? 1 : pRadius)) * outBase * forceMult * scale * (0.8 + level.random.nextDouble() * 0.4);
-                    level.addParticle(ParticleInit.ACTION_DUST_PARTICLE.get(), px, py, pz, vx, vy, vz);
+                    double vz = sinAngle * outBase * forceMult * scale * (0.8 + level.random.nextDouble() * 0.4);
+                    
+                    level.addParticle(p(ParticleInit.ACTION_DUST_PARTICLE, ParticleInit.ACTION_DUST_PARTICLE_HD), px, py, pz, vx, vy, vz);
                 }
                 
                 com.lightdust.client.particle.ActionDustParticle.CURRENT_BLOCK_COLOR = -1;
@@ -168,6 +187,7 @@ public class AmbientDustHandler {
         int size = radius * 2 + 1;
         int volume = size * size * size;
         int checksThisTick = isMovingFast ? 150 : BLOCKS_PER_TICK;
+        net.minecraft.world.phys.Vec3 eyePos = player.getEyePosition();
         for (int i = 0; i < checksThisTick; i++) {
             spawnScanIndex = (spawnScanIndex + 1) % Math.max(1, volume);
             // Decode the 1D index back into 3D coordinates
@@ -219,10 +239,13 @@ public class AmbientDustHandler {
 
             int blockLight = level.getBrightness(LightLayer.BLOCK, mutablePos);
             if (heldLight != null) {
-                double distToPlayer = Math.sqrt(mutablePos.distToCenterSqr(player.getX(), player.getY(), player.getZ()));
-                int handLight = (int) (heldLight.radius - distToPlayer);
-                if (handLight > blockLight) {
-                    blockLight = handLight;
+                double distSqrToPlayer = mutablePos.distToCenterSqr(player.getX(), player.getY(), player.getZ());
+
+                if (distSqrToPlayer <= (heldLight.radius * heldLight.radius)) {
+                    int handLight = (int) (heldLight.radius - Math.sqrt(distSqrToPlayer));
+                    if (handLight > blockLight) {
+                        blockLight = handLight;
+                    }
                 }
             }
 
@@ -269,7 +292,6 @@ public class AmbientDustHandler {
                             continue;
                         }
                         raycastsDoneThisTick++;
-                        net.minecraft.world.phys.Vec3 eyePos = player.getEyePosition();
                         net.minecraft.world.phys.Vec3 targetPosVec = new net.minecraft.world.phys.Vec3(mutablePos.getX() + 0.5, mutablePos.getY() + 0.5, mutablePos.getZ() + 0.5);
                         net.minecraft.world.phys.BlockHitResult sightCheck = level.clip(new net.minecraft.world.level.ClipContext(
                                 eyePos, targetPosVec, net.minecraft.world.level.ClipContext.Block.COLLIDER,
@@ -292,7 +314,7 @@ public class AmbientDustHandler {
                     double px = mutablePos.getX() + level.random.nextDouble();
                     double py = mutablePos.getY() + 0.1 + (level.random.nextDouble() * 0.8);
                     double pz = mutablePos.getZ() + level.random.nextDouble();
-                    level.addParticle(ParticleInit.DUST_PARTICLE.get(), px, py, pz, 0, 0, 0);
+                    level.addParticle(p(ParticleInit.DUST_PARTICLE, ParticleInit.DUST_PARTICLE_HD), px, py, pz, 0, 0, 0);
                 }
                 DustParticle.PENDING_POS = null;
             }
@@ -327,58 +349,90 @@ public class AmbientDustHandler {
                 int ambientRadius = com.lightdust.config.LightDustConfig.AMBIENT_RADIUS.get();
                 int ambientRadiusSqr = ambientRadius * ambientRadius;
                 net.minecraft.core.BlockPos.MutableBlockPos mut = new net.minecraft.core.BlockPos.MutableBlockPos();
+
+                java.util.Map<Long, Integer> roofCache = new java.util.HashMap<>();
+                java.util.Map<Long, Integer> floorCache = new java.util.HashMap<>();
                 
                 // loud sounds cave tremors (Spawns all at once)
                 for (int i = 0; i < totalRingParticles; i++) {
-                    double angle = level.random.nextDouble() * Math.PI * 2;
+                    float angle = level.random.nextFloat() * net.minecraft.util.Mth.TWO_PI;
                     double actualDist = waveDist - (level.random.nextDouble() * com.lightdust.config.LightDustConfig.TREMOR_WAVEFRONT_THICKNESS.get()); 
                     if (actualDist < 0) continue;
-                    double targetX = com.lightdust.client.particle.DustParticle.LOUD_NOISE_POS.x + Math.cos(angle) * actualDist;
-                    double targetZ = com.lightdust.client.particle.DustParticle.LOUD_NOISE_POS.z + Math.sin(angle) * actualDist;
+
+                    double targetX = com.lightdust.client.particle.DustParticle.LOUD_NOISE_POS.x + net.minecraft.util.Mth.cos(angle) * actualDist;
+                    double targetZ = com.lightdust.client.particle.DustParticle.LOUD_NOISE_POS.z + net.minecraft.util.Mth.sin(angle) * actualDist;
+                    
                     double dx = targetX - player.getX();
                     double dz = targetZ - player.getZ();
                     if (dx * dx + dz * dz > ambientRadiusSqr) continue;
+                    
                     double randomYStart = player.getY() - 2.0 + (level.random.nextDouble() * 8.0);
                     mut.set(targetX, randomYStart, targetZ);
+
+                    long colKey = net.minecraft.core.BlockPos.asLong((int)targetX, 0, (int)targetZ);
 
                     boolean forceCeiling = level.random.nextDouble() < com.lightdust.config.LightDustConfig.TREMOR_CEILING_BIAS.get();
                     net.minecraft.core.Direction searchDir = forceCeiling ? net.minecraft.core.Direction.UP : (level.random.nextBoolean() ? net.minecraft.core.Direction.UP : net.minecraft.core.Direction.DOWN);
                     
                     boolean foundSurface = false;
-                    
-                    // for fallback
-                    double startX = mut.getX();
-                    double startY = mut.getY();
-                    double startZ = mut.getZ();
+                    java.util.Map<Long, Integer> activeCache = (searchDir == net.minecraft.core.Direction.UP) ? roofCache : floorCache;
 
-                    for (int step = 0; step < 12; step++) {
-                        mut.move(searchDir);
-                        if (!level.getBlockState(mut).isAir() && !level.getBlockState(mut).getCollisionShape(level, mut).isEmpty()) {
-                            foundSurface = true;
-                            break;
-                        }
-                    }
-                    
-                    // fallback
-                    if (!foundSurface) {
-                        searchDir = searchDir.getOpposite(); // Reverse direction
-                        mut.set(startX, startY, startZ); // Reset position
+                    if (activeCache.containsKey(colKey)) {
+                        mut.set(targetX, activeCache.get(colKey), targetZ);
+                        foundSurface = true;
+                    } else {
+                        // If not in cache, do raycast
+                        double startX = mut.getX();
+                        double startY = mut.getY();
+                        double startZ = mut.getZ();
+
                         for (int step = 0; step < 12; step++) {
                             mut.move(searchDir);
                             if (!level.getBlockState(mut).isAir() && !level.getBlockState(mut).getCollisionShape(level, mut).isEmpty()) {
                                 foundSurface = true;
+                                activeCache.put(colKey, mut.getY()); 
                                 break;
+                            }
+                        }
+                        
+                        // fallback (reverse direction if no surface found)
+                        if (!foundSurface) {
+                            searchDir = searchDir.getOpposite();
+                            activeCache = (searchDir == net.minecraft.core.Direction.UP) ? roofCache : floorCache;
+                            
+                            // Check the opposite cache before raycasting
+                            if (activeCache.containsKey(colKey)) {
+                                mut.set(targetX, activeCache.get(colKey), targetZ);
+                                foundSurface = true;
+                            } else {
+                                mut.set(startX, startY, startZ);
+                                for (int step = 0; step < 12; step++) {
+                                    mut.move(searchDir);
+                                    if (!level.getBlockState(mut).isAir() && !level.getBlockState(mut).getCollisionShape(level, mut).isEmpty()) {
+                                        foundSurface = true;
+                                        activeCache.put(colKey, mut.getY()); 
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
                     
                     if (foundSurface) {
+             
                         if (com.lightdust.config.LightDustConfig.ENABLE_DYNAMIC_BLOCK_COLORS.get()) {
                             com.lightdust.client.particle.ExplosionDustParticle.CURRENT_BLOCK_COLOR = level.getBlockState(mut).getMapColor(level, mut).col;
                         }
+                        
                         double minGrav = com.lightdust.config.LightDustConfig.TREMOR_MIN_GRAVITY.get();
                         double maxGrav = com.lightdust.config.LightDustConfig.TREMOR_MAX_GRAVITY.get();
-                        com.lightdust.client.particle.ExplosionDustParticle.CURRENT_GRAVITY = (float)(minGrav + ((maxGrav - minGrav) * expoFalloff));
+                        double baseDynamicGravity = minGrav + ((maxGrav - minGrav) * expoFalloff);
+
+                        if (searchDir == net.minecraft.core.Direction.UP) {
+                            com.lightdust.client.particle.ExplosionDustParticle.CURRENT_GRAVITY = (float) (baseDynamicGravity * com.lightdust.config.LightDustConfig.TREMOR_ROOF_MULTIPLIER.get());
+                        } else {
+                            com.lightdust.client.particle.ExplosionDustParticle.CURRENT_GRAVITY = (float) (baseDynamicGravity * com.lightdust.config.LightDustConfig.TREMOR_FLOOR_MULTIPLIER.get());
+                        }
 
                         double px = mut.getX() + level.random.nextDouble();
                         double py = mut.getY() + (searchDir == net.minecraft.core.Direction.UP ? -0.1 : 1.1);
@@ -391,7 +445,7 @@ public class AmbientDustHandler {
                         double minKick = (searchDir == net.minecraft.core.Direction.DOWN) ? (0.02 * com.lightdust.config.LightDustConfig.TREMOR_FLOOR_KICK_FORCE.get()) : 0.0;
                         double vy = (pushDir * baseVerticalForce * velMult * intensity) + (level.random.nextDouble() - 0.5) * 0.05 + (pushDir * minKick);
                         double vz = (level.random.nextDouble() - 0.5) * (0.05 * intensity * velMult * chaos);
-                        level.addParticle(com.lightdust.init.ParticleInit.EXPLOSION_DUST_PARTICLE.get(), px, py, pz, vx, vy, vz);
+                        level.addParticle(p(ParticleInit.EXPLOSION_DUST_PARTICLE, ParticleInit.EXPLOSION_DUST_PARTICLE_HD), px, py, pz, vx, vy, vz);
                     }
                 }
                 com.lightdust.client.particle.ExplosionDustParticle.CURRENT_BLOCK_COLOR = -1;
@@ -424,7 +478,7 @@ public class AmbientDustHandler {
                     double vy = (normY * 0.6 + (level.random.nextDouble() - 0.5)) * speed;
                     double vz = (normZ * 0.6 + (level.random.nextDouble() - 0.5)) * speed;
                     
-                    level.addParticle(ParticleInit.ACTION_DUST_PARTICLE.get(), px, py, pz, vx, vy, vz);
+                    level.addParticle(p(ParticleInit.ACTION_DUST_PARTICLE, ParticleInit.ACTION_DUST_PARTICLE_HD), px, py, pz, vx, vy, vz);
                 }
 
                 com.lightdust.client.particle.ActionDustParticle.CURRENT_BLOCK_COLOR = -1;

@@ -49,6 +49,10 @@ public class LightDust {
             event.registerSpriteSet(ParticleInit.DUST_PARTICLE.get(), DustParticle.Provider::new);
             event.registerSpriteSet(ParticleInit.ACTION_DUST_PARTICLE.get(), ActionDustParticle.Provider::new);
             event.registerSpriteSet(ParticleInit.EXPLOSION_DUST_PARTICLE.get(), com.lightdust.client.particle.ExplosionDustParticle.Provider::new);
+
+            event.registerSpriteSet(ParticleInit.DUST_PARTICLE_HD.get(), DustParticle.Provider::new);
+            event.registerSpriteSet(ParticleInit.ACTION_DUST_PARTICLE_HD.get(), ActionDustParticle.Provider::new);
+            event.registerSpriteSet(ParticleInit.EXPLOSION_DUST_PARTICLE_HD.get(), com.lightdust.client.particle.ExplosionDustParticle.Provider::new);
         }
     }
 }
