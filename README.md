@@ -33,7 +33,3 @@ Basically, Luminous Dust is a fork of the original Light Dust, but with complete
 
 **A:** I wanted to create a more lightweight and performance-focused version of the original, as the current state of that mod felt overengineered for my needs. And the old version was perfect
 
-**Q: Config menu?**
-
-**A:** Sure, i'm going to work into it.
-
