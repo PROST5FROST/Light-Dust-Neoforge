@@ -32,6 +32,8 @@ public class DustPhysicsHelper {
     }
 
     public static void applyThermalUpdraft(DustParticle particle, ClientLevel level) {
+        if ((level.getGameTime() + particle.hashCode()) % 4L != 0L) return;
+
         BlockPos basePos = BlockPos.containing(particle.getX(), particle.getY(), particle.getZ());
 
         for (int i = 1; i <= 5; i++) {
@@ -41,13 +43,13 @@ public class DustPhysicsHelper {
             double updraftForce = 0.0;
 
             if (state.is(Blocks.LAVA) || level.getFluidState(checkPos).is(FluidTags.LAVA)) {
-                updraftForce = 0.0025 / (i + 1);
+                updraftForce = 0.02 / (i + 1);
             } else if (state.is(Blocks.CAMPFIRE) || state.is(Blocks.SOUL_CAMPFIRE)) {
-                updraftForce = 0.001 / (i + 1);
+                updraftForce = 0.01 / (i + 1);
             } else if (state.is(Blocks.FIRE) || state.is(Blocks.SOUL_FIRE) || state.is(Blocks.MAGMA_BLOCK)) {
-                updraftForce = 0.001 / (i + 1);
+                updraftForce = 0.01 / (i + 1);
             } else if (state.is(Blocks.TORCH) || state.is(Blocks.SOUL_TORCH) || state.is(Blocks.WALL_TORCH) || state.is(Blocks.SOUL_WALL_TORCH)) {
-                updraftForce = 0.0008 / (i + 1);
+                updraftForce = 0.008 / (i + 1);
             }
 
             if (updraftForce > 0.0) {
@@ -67,19 +69,28 @@ public class DustPhysicsHelper {
         double dx = particle.getX() - player.getX();
         double dy = particle.getY() - (player.getY() + 1.0);
         double dz = particle.getZ() - player.getZ();
-        double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        double distSqr = (dx * dx + dy * dy + dz * dz);
 
-        if (dist < 0.01) dist = 0.01;
+        if (distSqr >= 3) return;
+        if (distSqr < 0.0001) distSqr = 0.0001;
 
-        double nx = dx / dist;
-        double ny = dy / dist;
-        double nz = dz / dist;
+        double invDistSqr = 1.0 / distSqr;
+
+
+
+        double nx = dx / invDistSqr;
+        double ny = dy / invDistSqr;
+        double nz = dz / invDistSqr;
+
+        if (nx > 2.0) nx = 2.0; else if (nx < -2.0) nx = -2.0;
+        if (ny > 2.0) ny = 2.0; else if (ny < -2.0) ny = -2.0;
+        if (nz > 2.0) nz = 2.0; else if (nz < -2.0) nz = -2.0;
 
         double jitterX = (level.random.nextDouble() - 0.5) * 0.02;
         double jitterY = (level.random.nextDouble() - 0.5) * 0.02;
         double jitterZ = (level.random.nextDouble() - 0.5) * 0.02;
 
-        // A slash with a sword (Or something else)
+        // A slash with a sword (Or with something else)
         if (player.swingTime > 0) {
             Vec3 look = player.getLookAngle();
             if ((nx * look.x) + (ny * look.y) + (nz * look.z) > 0.5) {
@@ -94,7 +105,9 @@ public class DustPhysicsHelper {
         if (player.isUsingItem() && player.getUseItem().getItem() instanceof ShieldItem) {
             Vec3 look = player.getLookAngle();
             if ((nx * look.x) + (ny * look.y) + (nz * look.z) > 0.3) {
-                double shieldPush = 0.04 / dist;
+
+                double shieldPush = 0.02;
+
                 particle.setXd(particle.getXd() + (nx * shieldPush) + jitterX);
                 particle.setYd(particle.getYd() + (ny * shieldPush) + jitterY);
                 particle.setZd(particle.getZd() + (nz * shieldPush) + jitterZ);
@@ -103,10 +116,13 @@ public class DustPhysicsHelper {
 
         // Walking through a particle
         Vec3 pVel = player.getDeltaMovement();
-        double horizontalSpeed = Math.sqrt(pVel.x * pVel.x + pVel.z * pVel.z);
-        if (horizontalSpeed > 0.01) {
-            double proximityFactor = (range - dist) / range;
-            double pushStrength = horizontalSpeed * proximityFactor * 0.05;
+        double squaredSpeed = pVel.x * pVel.x + pVel.z * pVel.z;
+        if (squaredSpeed > 0.01) {
+
+            double proximityFactorSqr = (range * range - distSqr) / range * range;
+
+            if (proximityFactorSqr < 0) proximityFactorSqr = 0;
+            double pushStrength = squaredSpeed * proximityFactorSqr * 1.5;
             particle.setXd(particle.getXd() + (nx * pushStrength) + jitterX);
             particle.setYd(particle.getYd() + (ny * pushStrength) + jitterY);
             particle.setZd(particle.getZd() + (nz * pushStrength) + jitterZ);
@@ -122,20 +138,22 @@ public class DustPhysicsHelper {
                     double dX = particle.getX() - (breakPos.getX() + 0.5);
                     double dY = particle.getY() - (breakPos.getY() + 0.5);
                     double dZ = particle.getZ() - (breakPos.getZ() + 0.5);
-                    double distSqrBreak = dX * dX + dY * dY + dZ * dZ;
-                    if (level.getBlockState(breakPos).isAir() && distSqrBreak < 3) {
 
-                        double distBreak = Math.sqrt(distSqrBreak);
-                        if (distBreak < 0.1) distBreak = 0.1;
-                        double force = 0.01;
+                    double distSqrBreak = dX * dX + dY * dY + dZ * dZ;
+
+                    if (level.getBlockState(breakPos).isAir() && distSqrBreak < 3.0) {
+                        if (distSqrBreak < 0.1) distSqrBreak = 0.1;
+
+                        double forceFactor = 0.005 / distSqrBreak;
+                        if (forceFactor > 0.2) forceFactor = 0.2;
 
                         double jitterX = (level.random.nextDouble() - 0.5) * 0.2;
                         double jitterY = (level.random.nextDouble() - 0.5) * 0.2;
                         double jitterZ = (level.random.nextDouble() - 0.5) * 0.2;
 
-                        particle.setXd(particle.getXd() + (dX / distBreak) * force + jitterX);
-                        particle.setYd(particle.getYd() + (dY / distBreak) * force + jitterY);
-                        particle.setZd(particle.getZd() + (dZ / distBreak) * force + jitterZ);
+                        particle.setXd(particle.getXd() + (dX / forceFactor) + jitterX);
+                        particle.setYd(particle.getYd() + (dY / forceFactor) + jitterY);
+                        particle.setZd(particle.getZd() + (dZ / forceFactor) + jitterZ);
                     }
                 }
             }
