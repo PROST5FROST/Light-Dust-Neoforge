@@ -74,20 +74,20 @@ public class DustPhysicsHelper {
         if (distSqr >= 3) return;
         if (distSqr < 0.0001) distSqr = 0.0001;
 
-        double invDistSqr = 1.0 / distSqr;
+        double force = 1.0 / distSqr;
 
+        if (force > 10.0) force = 10.0;
 
-
-        double nx = dx / invDistSqr;
-        double ny = dy / invDistSqr;
-        double nz = dz / invDistSqr;
+        double nx = dx * force;
+        double ny = dy * force;
+        double nz = dz * force;
 
         if (nx > 2.0) nx = 2.0; else if (nx < -2.0) nx = -2.0;
         if (ny > 2.0) ny = 2.0; else if (ny < -2.0) ny = -2.0;
         if (nz > 2.0) nz = 2.0; else if (nz < -2.0) nz = -2.0;
 
         double jitterX = (level.random.nextDouble() - 0.5) * 0.02;
-        double jitterY = (level.random.nextDouble() - 0.5) * 0.02;
+        double jitterY = (level.random.nextDouble() - 0.5) * 0.05;
         double jitterZ = (level.random.nextDouble() - 0.5) * 0.02;
 
         // A slash with a sword (Or with something else)
@@ -116,16 +116,28 @@ public class DustPhysicsHelper {
 
         // Walking through a particle
         Vec3 pVel = player.getDeltaMovement();
-        double squaredSpeed = pVel.x * pVel.x + pVel.z * pVel.z;
-        if (squaredSpeed > 0.01) {
+        double squaredSpeed = (pVel.x * pVel.x + pVel.z * pVel.z + pVel.y * pVel.y) * 0.5;
+        if (squaredSpeed > 0.001) {
 
             double proximityFactorSqr = (range * range - distSqr) / range * range;
 
             if (proximityFactorSqr < 0) proximityFactorSqr = 0;
-            double pushStrength = squaredSpeed * proximityFactorSqr * 1.5;
+
+            double pushStrength = squaredSpeed * proximityFactorSqr;
+
             particle.setXd(particle.getXd() + (nx * pushStrength) + jitterX);
-            particle.setYd(particle.getYd() + (ny * pushStrength) + jitterY);
             particle.setZd(particle.getZd() + (nz * pushStrength) + jitterZ);
+
+            if (Math.abs(pVel.y) > 0.5) {
+
+                double verticalPush = pVel.y * proximityFactorSqr * 0.8;
+
+                particle.setYd(particle.getYd() + verticalPush + (ny * 0.02) + jitterY);
+            }
+            // If the player is NOT moving at y coordinate
+            else {
+                particle.setYd(particle.getYd() + (pushStrength * 0.1) + jitterY);
+            }
         }
     }
 

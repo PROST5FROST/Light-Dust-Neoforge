@@ -11,8 +11,6 @@ import net.minecraft.world.level.LightLayer;
 
 public class DustCullingHelper {
 
-    // Not Ready Yet.
-
     public static boolean shouldRemove(DustParticle particle, ClientLevel level, int blockLight) {
 
         BlockPos currentPos = BlockPos.containing(particle.getX(), particle.getY(), particle.getZ());
