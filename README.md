@@ -7,8 +7,9 @@ Basically, Luminous Dust is a fork of the original Light Dust, but with complete
 
 ## Configuration
 
-Everything is in luminousdust.toml file so you will understand.
-And a YACL config in new dev builds!
+**Basic Settings:** Can be configured directly via the in-game UI.
+
+**Advanced Settings & Colors:** Can be customized in the luminousdust-client.toml config file.
 
 ## Q&A
 
@@ -31,8 +32,4 @@ And a YACL config in new dev builds!
 **Q: Why the mod is not up to date with original mod?**
 
 **A:** I wanted to create a more lightweight and performance-focused version of the original, as the current state of that mod felt overengineered for my needs. And the old version was perfect
-
-**Q: Config menu?**
-
-**A:** Sure, i'm going to work into it.
 
